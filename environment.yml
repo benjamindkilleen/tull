@@ -1,0 +1,19 @@
+name: tull
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - conda-forge::ffmpeg
+  - conda-forge::opencv
+
+  - pip
+  - pip:
+      - matplotlib
+      - numpy
+      - Pillow
+      - click
+      - rich
+
+      - black
+
+      - -e .
