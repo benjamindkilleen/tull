@@ -13,6 +13,7 @@ dependencies:
       - Pillow
       - click
       - rich
+      - strenum
 
       - black
 
