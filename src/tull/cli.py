@@ -8,6 +8,7 @@ import logging
 import matplotlib.pyplot as plt
 from stringcase import spinalcase, camelcase
 import shutil
+from rich.progress import track
 
 from .utils.colors import JHU
 from .utils import make_sprite
@@ -51,6 +52,17 @@ def cli(verbose, debug):
     help="Change all foreground pixels to this csolor.",
 )
 @click.option(
+    "-e",
+    "--edge",
+    default=None,
+    help="Color to use for the edge.",
+)
+@click.option(
+    "--edge-thickness",
+    default=3,
+    help="Thickness of the edge in pixels.",
+)
+@click.option(
     "--fuzz/--no-fuzz",
     default=True,
     help="Handle edges by setting alpha values to the difference between the pixel intensity and the background intensity.",
@@ -60,7 +72,7 @@ def cli(verbose, debug):
     default=True,
     help="Crop the image to the bounding box of the non-background pixels.",
 )
-def sprite(input, output, background, foreground, fuzz, crop):
+def sprite(input, output, background, foreground, edge, edge_thickness, fuzz, crop):
     input_path = Path(input)
     output_path = (
         (input_path.parent / f"{input_path.stem}_sprite.png")
@@ -68,7 +80,16 @@ def sprite(input, output, background, foreground, fuzz, crop):
         else Path(output)
     )
 
-    make_sprite(input_path, output_path, background, foreground, fuzz, crop)
+    make_sprite(
+        input_path,
+        output_path,
+        background,
+        foreground,
+        edge=edge,
+        edge_thickness=edge_thickness,
+        fuzz=fuzz,
+        crop=crop,
+    )
 
 
 @cli.command(help="Run sprite on an image, but over the whole JHU color palette.")
@@ -107,7 +128,10 @@ def jhu(input, output, background, fuzz, crop):
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
-    for color_name, color in JHU.full_palette().items():
+    palette = JHU.full_palette()
+    for color_name, color in track(
+        palette.items(), description="Creating sprites...", total=len(palette)
+    ):
         if color_name.startswith("_"):
             continue
         output_path = output_dir / f"{input_path.stem}_{filenamecase(color_name)}.png"

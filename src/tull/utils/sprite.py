@@ -2,6 +2,7 @@ from pathlib import Path
 import logging
 import numpy as np
 from PIL import Image
+import skfmm
 
 from .colors import get_color
 
@@ -13,6 +14,8 @@ def make_sprite(
     output_path: Path,
     background: str,
     foreground: str | None,
+    edge: str | None,
+    edge_thickness: int = 3,
     fuzz: bool = True,
     crop: bool = True,
 ):
@@ -60,6 +63,28 @@ def make_sprite(
         )
         output_image = image
         output_image[:, :, 3] = alpha
+
+    if edge is not None:
+        # Make a signed distance transform of the alpha channel
+        pad = edge_thickness + 1
+        alpha = np.pad(alpha, pad, mode="constant", constant_values=0)
+        output_image = np.pad(
+            output_image, ((pad, pad), (pad, pad), (0, 0)), mode="constant"
+        )
+
+        log.debug("Making signed distance transform of the alpha channel.")
+        phi = np.where(alpha, 0, -1) + 0.5
+        distance = np.abs(skfmm.distance(phi))
+        edge_alpha = (
+            1 - np.clip(distance - edge_thickness, 0, edge_thickness) / edge_thickness
+        )
+        edge_color = get_color(edge)
+        edge_image = np.dstack(
+            [np.full_like(output_image[:, :, :3], edge_color), edge_alpha]
+        )
+        edge_map = edge_alpha > alpha
+        output_image = np.where(edge_map[:, :, None], edge_image, output_image)
+        alpha = np.maximum(alpha, edge_alpha)
 
     # Crop the image to the bounding box of the non-background pixels
     if crop:
