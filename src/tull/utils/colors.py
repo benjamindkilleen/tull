@@ -86,6 +86,18 @@ class JHU:
         )
     ) / 255
 
+    @classmethod
+    def primaries(cls):
+        return cls.PRIMARIES.copy()
+
+    @classmethod
+    def secondaries(cls):
+        return cls.SECONDARIES.copy()
+
+    @classmethod
+    def accents(cls):
+        return cls.ACCENTS.copy()
+
     Sable = np.array([49, 38, 29]) / 255
     White = np.array([255, 255, 255]) / 255
     DoubleBlack = np.array([0, 0, 0]) / 255

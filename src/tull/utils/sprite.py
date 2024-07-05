@@ -14,7 +14,7 @@ def make_sprite(
     output_path: Path,
     background: str,
     foreground: str | None,
-    edge: str | None,
+    edge: str | None = None,
     edge_thickness: int = 3,
     fuzz: bool = True,
     crop: bool = True,

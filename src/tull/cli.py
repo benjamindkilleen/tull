@@ -135,4 +135,4 @@ def jhu(input, output, background, fuzz, crop):
         if color_name.startswith("_"):
             continue
         output_path = output_dir / f"{input_path.stem}_{filenamecase(color_name)}.png"
-        make_sprite(input_path, output_path, background, color, fuzz, crop)
+        make_sprite(input_path, output_path, background, color, fuzz=fuzz, crop=crop)
