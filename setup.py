@@ -19,6 +19,7 @@ setup(
         "scipy",
         "scikit-image",
         "matplotlib",
+        "scikit-fmm",
     ],
     packages=find_packages(),
     package_dir={"": "src"},
