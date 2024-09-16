@@ -5,6 +5,7 @@ dependencies:
   - python=3.11
   - conda-forge::ffmpeg
   - conda-forge::opencv
+  - scikit-fmm
 
   - pip
   - pip:
@@ -14,6 +15,7 @@ dependencies:
       - click
       - rich
       - strenum
+      - stringcase
 
       - black
 
