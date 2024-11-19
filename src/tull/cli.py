@@ -73,23 +73,51 @@ def cli(verbose, debug):
     help="Crop the image to the bounding box of the non-background pixels.",
 )
 def sprite(input, output, background, foreground, edge, edge_thickness, fuzz, crop):
-    input_path = Path(input)
-    output_path = (
-        (input_path.parent / f"{input_path.stem}_sprite.png")
-        if output is None
-        else Path(output)
-    )
+    input_path = Path(input).absolute()
 
-    make_sprite(
-        input_path,
-        output_path,
-        background,
-        foreground,
-        edge=edge,
-        edge_thickness=edge_thickness,
-        fuzz=fuzz,
-        crop=crop,
-    )
+    if input_path.is_dir():
+        if output is None:
+            output_path = input_path.parent / f"{input_path.stem}_sprites"
+        else:
+            output_path = Path(output)
+
+        if output_path.exists():
+            shutil.rmtree(output_path)
+
+        output_path.mkdir(exist_ok=True, parents=True)
+        assert output_path.is_dir()
+
+        for file in input_path.iterdir():
+            if file.suffix in [".png", ".jpg", ".jpeg", ".gif"]:
+                make_sprite(
+                    file,
+                    output_path / f"{file.stem}.png",
+                    background,
+                    foreground,
+                    edge=edge,
+                    edge_thickness=edge_thickness,
+                    fuzz=fuzz,
+                    crop=crop,
+                )
+
+    else:
+
+        output_path = (
+            (input_path.parent / f"{input_path.stem}_sprite.png")
+            if output is None
+            else Path(output)
+        )
+
+        make_sprite(
+            input_path,
+            output_path,
+            background,
+            foreground,
+            edge=edge,
+            edge_thickness=edge_thickness,
+            fuzz=fuzz,
+            crop=crop,
+        )
 
 
 @cli.command(help="Run sprite on an image, but over the whole JHU color palette.")
