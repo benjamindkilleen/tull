@@ -33,7 +33,9 @@ def get_color(user_input: str | tuple[int, int, int] | int) -> np.ndarray:
         else:
             raise ValueError(f"Invalid color name: {user_input}")
     # Check if the input is an RGB tuple
-    elif isinstance(user_input, tuple) and len(user_input) == 3:
+    elif isinstance(user_input, tuple):
+        if len(user_input) != 3:
+            raise ValueError(f"Invalid RGB tuple: {user_input}")
         if all(isinstance(x, int) for x in user_input):
             color = np.array([x / 255 for x in user_input])
         else:

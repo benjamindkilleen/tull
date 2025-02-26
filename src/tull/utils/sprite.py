@@ -18,6 +18,7 @@ def make_sprite(
     edge_thickness: int = 3,
     fuzz: bool = True,
     crop: bool = True,
+    max_alpha: float | int = 1.0,
 ):
     log.info(f"Processing {input_path} into {output_path}.")
 
@@ -85,6 +86,11 @@ def make_sprite(
         edge_map = edge_alpha > alpha
         output_image = np.where(edge_map[:, :, None], edge_image, output_image)
         alpha = np.maximum(alpha, edge_alpha)
+
+    # Scale the alpha channel to the range [0, max_alpha]
+    if isinstance(max_alpha, int):
+        max_alpha = max_alpha / 255
+    output_image[:, :, 3] = alpha * max_alpha
 
     # Crop the image to the bounding box of the non-background pixels
     if crop:

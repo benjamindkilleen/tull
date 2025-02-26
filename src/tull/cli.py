@@ -72,7 +72,15 @@ def cli(verbose, debug):
     default=True,
     help="Crop the image to the bounding box of the non-background pixels.",
 )
-def sprite(input, output, background, foreground, edge, edge_thickness, fuzz, crop):
+@click.option(
+    "--alpha",
+    default=255,
+    type=int,
+    help="Scale the transparency to this alpha value. If a float, it is a percentage of 255.",
+)
+def sprite(
+    input, output, background, foreground, edge, edge_thickness, fuzz, crop, alpha
+):
     input_path = Path(input).absolute()
 
     if input_path.is_dir():
@@ -117,6 +125,7 @@ def sprite(input, output, background, foreground, edge, edge_thickness, fuzz, cr
             edge_thickness=edge_thickness,
             fuzz=fuzz,
             crop=crop,
+            max_alpha=alpha,
         )
 
 
