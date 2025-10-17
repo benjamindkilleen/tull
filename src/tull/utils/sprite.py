@@ -95,7 +95,7 @@ def make_sprite(
     # Crop the image to the bounding box of the non-background pixels
     if crop:
         log.debug("Cropping image.")
-        mask = alpha > 0
+        mask = alpha > 0.05
         rows = np.any(mask, axis=1)
         cols = np.any(mask, axis=0)
         rmin, rmax = np.where(rows)[0][[0, -1]]

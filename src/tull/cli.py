@@ -10,7 +10,7 @@ from stringcase import spinalcase, camelcase
 import shutil
 from rich.progress import track
 
-from .utils.colors import JHU
+from .palettes import JHU, TUM, Palette
 from .utils import make_sprite
 from .utils import filenamecase
 
@@ -129,7 +129,7 @@ def sprite(
         )
 
 
-@cli.command(help="Run sprite on an image, but over the whole JHU color palette.")
+@cli.command(help="Run sprite on an image, but over the whole color palette.")
 @click.argument("input", type=click.Path(exists=True))
 @click.option(
     "--output",
@@ -155,7 +155,14 @@ def sprite(
     default=True,
     help="Crop the image to the bounding box of the non-background pixels.",
 )
-def jhu(input, output, background, fuzz, crop):
+@click.option(
+    "--palette",
+    "-p",
+    type=str,
+    default="TUM",
+    help="Color palette to use. Currently only 'JHU' and 'TUM' are supported.",
+)
+def palette(input, output, background, fuzz, crop, palette: str):
     input_path = Path(input)
     output_dir = (
         Path(output)
@@ -165,11 +172,21 @@ def jhu(input, output, background, fuzz, crop):
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(exist_ok=True, parents=True)
-    palette = JHU.full_palette()
+    palette_name = palette.upper()
+    if palette_name not in ["TUM", "JHU"]:
+        raise ValueError(
+            f"Unsupported palette: {palette}. Supported palettes are TUM and JHU."
+        )
+
+    palette: Palette = {"TUM": TUM, "JHU": JHU}[palette_name]
     for color_name, color in track(
-        palette.items(), description="Creating sprites...", total=len(palette)
+        palette.items(),
+        description=f"Creating {palette_name} sprites...",
+        total=len(palette),
     ):
         if color_name.startswith("_"):
             continue
-        output_path = output_dir / f"{input_path.stem}_{filenamecase(color_name)}.png"
+        if palette_name == "JHU":
+            color_name = filenamecase(color_name)
+        output_path = output_dir / f"{input_path.stem}_{color_name}.png"
         make_sprite(input_path, output_path, background, color, fuzz=fuzz, crop=crop)
